@@ -27,9 +27,7 @@ style.configure("TLabelframe.Label", background="#2b2b2b", foreground="white")
 repo_frame = ttk.LabelFrame(root, text="Repository", padding=10)
 repo_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
 
-repo_label = ttk.Label(repo_frame, text="Repo: None selected")
-repo_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
-
+# Choose Repo button
 ttk.Button(repo_frame, text="Choose Repo",
            command=lambda: git_utils.choose_repo(
                repo_label,
@@ -38,8 +36,17 @@ ttk.Button(repo_frame, text="Choose Repo",
                lambda: git_utils.load_history(history_tree))
            ).grid(row=0, column=0, padx=5, pady=5)
 
+# Repo label
+repo_label = ttk.Label(repo_frame, text="Repo:")
+repo_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
+# Status reminder label (next to Choose Repo button)
+repo_status_label = ttk.Label(repo_frame, text="⚠️ No repository selected", foreground="orange")
+repo_status_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+
+# Export History button
 ttk.Button(repo_frame, text="Export History",
-           command=lambda: export_summary(git_utils.repo_path)).grid(row=0, column=2, padx=5, pady=5)
+           command=lambda: export_summary(git_utils.repo_path)).grid(row=0, column=3, padx=5, pady=5)
 
 # --- Commit details ---
 commit_frame = ttk.LabelFrame(root, text="Commit Details", padding=10)
@@ -67,7 +74,8 @@ ttk.Button(commit_frame, text="Commit Now",
            command=lambda: commit_now(git_utils.repo_path, preview_text, git_utils.file_vars,
                                       lambda: git_utils.check_changes(status_label, canvas, light),
                                       lambda: git_utils.load_files(files_frame),
-                                      lambda: git_utils.load_history(history_tree))
+                                      lambda: git_utils.load_history(history_tree),
+                                      repo_status_label)
            ).grid(row=4, column=1, padx=5, pady=10)
 
 # --- Preview ---
@@ -116,6 +124,9 @@ def auto_refresh():
         git_utils.check_changes(status_label, canvas, light)
         git_utils.load_files(files_frame)
         git_utils.load_history(history_tree)
+        repo_status_label.config(text="✅ Repository ready", foreground="green")
+    else:
+        repo_status_label.config(text="⚠️ No repository selected", foreground="orange")
     root.after(8000, auto_refresh)
 
 auto_refresh()
@@ -124,7 +135,8 @@ auto_refresh()
 root.bind("<Control-Return>", lambda e: commit_now(git_utils.repo_path, preview_text, git_utils.file_vars,
                                                    lambda: git_utils.check_changes(status_label, canvas, light),
                                                    lambda: git_utils.load_files(files_frame),
-                                                   lambda: git_utils.load_history(history_tree)))
+                                                   lambda: git_utils.load_history(history_tree),
+                                                   repo_status_label))
 root.bind("<Control-g>", lambda e: generate_commit(type_var, scope_entry, desc_entry, breaking_var, preview_text))
 root.bind("<Control-r>", lambda e: [git_utils.check_changes(status_label, canvas, light),
                                     git_utils.load_files(files_frame),
