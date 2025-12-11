@@ -299,4 +299,10 @@ def auto_refresh():
     root.after(8000, auto_refresh)  # every 8 seconds
 auto_refresh()
 
+# Hotkeys
+root.bind("<Control-Return>", lambda e: commit_now())
+root.bind("<Control-g>", lambda e: generate_commit())
+root.bind("<Control-r>", lambda e: [check_changes(), load_files(), load_history()])
+root.bind("<Control-o>", lambda e: choose_repo())
+
 root.mainloop()
