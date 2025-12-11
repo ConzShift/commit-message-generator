@@ -20,12 +20,16 @@ def generate_commit(type_var, scope_entry, desc_entry, breaking_var, preview_tex
     preview_text.insert(END, commit_msg)
     preview_text.config(state="disabled")
 
-def commit_now(repo_path, preview_text, file_vars, check_changes, load_files, load_history):
+def commit_now(repo_path, preview_text, file_vars, check_changes, load_files, load_history, preview_status=None):
     commit_msg = preview_text.get("1.0", "end").strip()
     if not commit_msg:
+        if preview_status:
+            preview_status.config(text="⚠️ No commit message generated")
         messagebox.showerror("Error", "No commit message generated")
         return
     if not repo_path:
+        if preview_status:
+            preview_status.config(text="⚠️ No repository selected")
         messagebox.showerror("Error", "No repository selected")
         return
 
