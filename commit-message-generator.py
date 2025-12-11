@@ -212,8 +212,6 @@ breaking_var = tk.BooleanVar()
 ttk.Checkbutton(commit_frame, text="Breaking Change", variable=breaking_var).grid(row=3, column=1, padx=5, pady=5, sticky="w")
 ttk.Button(commit_frame, text="Generate", command=generate_commit).grid(row=4, column=0, padx=5, pady=10)
 ttk.Button(commit_frame, text="Commit Now", command=commit_now).grid(row=4, column=1, padx=5, pady=10)
-ttk.Button(commit_frame, text="Check Changes", command=check_changes).grid(row=4, column=2, padx=5, pady=10)
-
 # Preview
 preview_frame = ttk.LabelFrame(root, text="Preview", padding=10)
 preview_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
