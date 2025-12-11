@@ -33,16 +33,17 @@ def generate_commit():
         messagebox.showerror("Error", "Description cannot be empty")
         return
 
-    if scope:
-        commit_msg = f"{ctype}({scope}): {desc}"
-    else:
-        commit_msg = f"{ctype}: {desc}"
+    # Build commit message
+    commit_msg = f"{ctype}({scope}): {desc}" if scope else f"{ctype}: {desc}"
 
     if breaking:
         commit_msg += f"\n\nBREAKING CHANGE: {desc}"
 
+    # Update preview (read-only)
+    preview_text.config(state="normal")   # temporarily unlock
     preview_text.delete("1.0", tk.END)
     preview_text.insert(tk.END, commit_msg)
+    preview_text.config(state="disabled") # lock again
 
 def commit_now():
     global repo_path
@@ -79,13 +80,27 @@ def check_changes():
         return
     
     try:
+        # Branch name
+        branch = subprocess.run(
+            ["git", "-C", repo_path, "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, check=True
+        ).stdout.strip()
+
+        # Ahead/behind summary
+        summary = subprocess.run(
+            ["git", "-C", repo_path, "status", "-sb"],
+            capture_output=True, text=True, check=True
+        ).stdout.strip().splitlines()[0]
+
+        status_label.config(text=f"Branch: {branch} | {summary}")
+
+        # Light indicator logic
         result = subprocess.run(
             ["git", "-C", repo_path, "status", "--short"],
             capture_output=True, text=True, check=True
         )
         changes = result.stdout.strip()
         if not changes:
-            status_label.config(text="Working tree clean (no changes)")
             canvas.itemconfig(light, fill="green")
         else:
             staged = subprocess.run(
@@ -93,10 +108,8 @@ def check_changes():
                 capture_output=True, text=True, check=True
             ).stdout.strip()
             if staged:
-                status_label.config(text="Staged changes ready to commit")
                 canvas.itemconfig(light, fill="red")
             else:
-                status_label.config(text="Unstaged changes detected")
                 canvas.itemconfig(light, fill="orange")
     except subprocess.CalledProcessError as e:
         status_label.config(text=f"Git Error: {e}")
@@ -215,8 +228,20 @@ ttk.Button(commit_frame, text="Commit Now", command=commit_now).grid(row=4, colu
 # Preview
 preview_frame = ttk.LabelFrame(root, text="Preview", padding=10)
 preview_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
-preview_text = tk.Text(preview_frame, height=5, width=80, bg="#1e1e1e", fg="white", insertbackground="white")
+
+preview_text = tk.Text(
+    preview_frame,
+    height=5,
+    width=80,
+    bg="#1e1e1e",        # dark background
+    fg="white",          # white text
+    insertbackground="white",  # white cursor
+    wrap="word"          # wrap text nicely
+)
 preview_text.pack(fill="both", expand=True)
+
+# Start locked so users can't type directly
+preview_text.config(state="disabled")
 
 # File selector
 files_container = ttk.LabelFrame(root, text="Changed Files", padding=10)
