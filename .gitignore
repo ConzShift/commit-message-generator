@@ -1,2 +1,15 @@
 __pycache__/
 *.log
+# Ignore Hugging Face model downloads and caches
+huggingface/
+.huggingface/
+transformers_cache/
+.cache/
+__pycache__/
+*.bin
+*.safetensors
+*.pt
+# Ignore Python virtual environments
+venv/
+ENV/
+.env/

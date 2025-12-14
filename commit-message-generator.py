@@ -1,23 +1,25 @@
 import tkinter as tk
 from tkinter import ttk
+import subprocess
 
 # Import helper modules
 import git_utils
 from commit_utils import generate_commit, commit_now
 from export_utils import export_summary
+from ai_utils import suggest_commit_message   # <-- NEW import
 
 commit_types = ["feat", "fix", "docs", "style", "refactor", "test", "chore", "perf"]
 
 # --- Main window setup ---
 root = tk.Tk()
 root.title("Commit Message Generator")
-root.geometry("900x750")
-root.minsize(900, 750)
+root.geometry("1100x800")   # wider and taller
+root.minsize(1100, 800)     # enforce minimum size
 root.configure(bg="#2b2b2b")
 
 style = ttk.Style()
 style.theme_use("clam")
-style.configure("TButton", font=("Segoe UI", 10), padding=6, background="#3c3f41", foreground="white")
+style.configure("TButton", font=("Segoe UI", 10), padding=6, background="#3f4f59", foreground="white")
 style.configure("TLabel", font=("Segoe UI", 10), background="#2b2b2b", foreground="white")
 style.configure("TCheckbutton", background="#2b2b2b", foreground="white")
 style.configure("TLabelframe", background="#2b2b2b", foreground="white")
@@ -27,7 +29,6 @@ style.configure("TLabelframe.Label", background="#2b2b2b", foreground="white")
 repo_frame = ttk.LabelFrame(root, text="Repository", padding=10)
 repo_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=10, sticky="ew")
 
-# Choose Repo button
 ttk.Button(repo_frame, text="Choose Repo",
            command=lambda: git_utils.choose_repo(
                repo_label,
@@ -36,15 +37,12 @@ ttk.Button(repo_frame, text="Choose Repo",
                lambda: git_utils.load_history(history_tree))
            ).grid(row=0, column=0, padx=5, pady=5)
 
-# Repo label
 repo_label = ttk.Label(repo_frame, text="Repo:")
 repo_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-# Status reminder label (next to Choose Repo button)
 repo_status_label = ttk.Label(repo_frame, text="⚠️ No repository selected", foreground="orange")
 repo_status_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
-# Export History button
 ttk.Button(repo_frame, text="Export History",
            command=lambda: export_summary(git_utils.repo_path)).grid(row=0, column=3, padx=5, pady=5)
 
@@ -77,6 +75,10 @@ ttk.Button(commit_frame, text="Commit Now",
                                       lambda: git_utils.load_history(history_tree),
                                       repo_status_label)
            ).grid(row=4, column=1, padx=5, pady=10)
+
+# --- NEW: AI Suggestion button ---
+ttk.Button(commit_frame, text="Suggest with AI",
+           command=lambda: preview_ai_suggestion(preview_text)).grid(row=4, column=2, padx=5, pady=10)
 
 # --- Preview ---
 preview_frame = ttk.LabelFrame(root, text="Preview", padding=10)
@@ -112,12 +114,6 @@ canvas = tk.Canvas(status_frame, width=20, height=20, bg="#2b2b2b", highlightthi
 canvas.pack(side="right", padx=5)
 light = canvas.create_oval(2, 2, 18, 18, fill="grey")
 
-# --- Grid responsiveness ---
-root.grid_columnconfigure(0, weight=1)
-root.grid_columnconfigure(1, weight=1)
-root.grid_columnconfigure(2, weight=1)
-root.grid_rowconfigure(3, weight=1)
-
 # --- Auto refresh ---
 def auto_refresh():
     if git_utils.repo_path:
@@ -130,6 +126,31 @@ def auto_refresh():
     root.after(8000, auto_refresh)
 
 auto_refresh()
+
+# --- UPDATED: AI Suggestion helper ---
+def preview_ai_suggestion(preview_widget):
+    # Automatically stage all changes
+    subprocess.run(["git", "add", "-A"], shell=True)
+
+    # Run git diff with UTF-8 decoding
+    result = subprocess.run(
+        ["git", "diff", "--staged"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="ignore"   # skip any undecodable characters
+    )
+    diff_text = result.stdout
+
+    if not diff_text.strip():
+        suggestion = "⚠️ No changes found in repo."
+    else:
+        suggestion = suggest_commit_message(diff_text)
+
+    preview_widget.config(state="normal")
+    preview_widget.delete("1.0", "end")
+    preview_widget.insert("end", f"AI Suggestion:\n{suggestion}")
+    preview_widget.config(state="disabled")
 
 # --- Hotkeys ---
 root.bind("<Control-Return>", lambda e: commit_now(git_utils.repo_path, preview_text, git_utils.file_vars,
@@ -147,3 +168,4 @@ root.bind("<Control-o>", lambda e: git_utils.choose_repo(repo_label,
                                                          lambda: git_utils.load_history(history_tree)))
 
 root.mainloop()
+print("App reached the end of the script.")

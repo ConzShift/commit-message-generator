@@ -1,2 +1,5 @@
+torch
+transformers
+accelerate
 pillow
 reportlab
