@@ -1,7 +1,7 @@
 # Commit Message Generator 📝
 
 A Python tool that enforces clean, professional commit histories using the Conventional Commits standard.  
-This project is meta — it can even commit itself using the messages it generates!
+This project is meta it can even commit itself using the messages it generates!
 
 ## 🚀 Features
 - Prompt-based commit message generator (type, scope, description)
