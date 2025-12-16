@@ -1,0 +1,15 @@
+feat(UI): add repo status label next to Choose Repo button
+fix(entrypoint): update commit-message-generator.py to reference git_utils.repo_path and file_vars correctly
+feat(UI): add keyboard shortcuts for commit, generate, refresh, and repo selection
+chore(deps): update requirements.txt with latest transformers version
+docs(readme): improve setup instructions for Windows users
+refactor(utils): simplify run_cmd function for clarity
+feat(logging): add rotating file handler for debug logs
+fix(auth): correct environment variable parsing in ai_utils.py
+perf(diff): optimize staged diff summarization for large repos
+test(cleaner): add unit tests for clean_candidate_line function
+style(ui): apply consistent padding in Tkinter layout
+feat(export): add PDF export option for commit summaries
+fix(cli): resolve encoding issue in argument parser
+chore(repo): add commit_examples.txt for seed examples
+docs(contributing): add guidelines for writing Conventional Commits
