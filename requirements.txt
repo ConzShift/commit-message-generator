@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 torch
 transformers
 accelerate
-=======
->>>>>>> 4c7e37736f1b175e33a7bdaec494ce1fed5ff56b
 pillow
 reportlab
