@@ -20,9 +20,6 @@ python commit_message_generator.py
 
 Follow the prompts to generate a commit message and optionally commit directly.
 
-## 💡 Example
-[Insert screenshot or GIF here]
-
 ## 🎯 Why This Project
 - Enforces commit consistency across projects
 - Saves time writing commit messages
